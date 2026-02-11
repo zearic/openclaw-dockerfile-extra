@@ -1,31 +1,28 @@
-# Base image from OpenClaw (using public Docker Hub mirror for CI compatibility)
-FROM node:22-bookworm
+# Base image from OpenClaw
+FROM ghcr.io/openclaw/openclaw:main
 
-# Install Bun (required for build scripts)
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:${PATH}"
+# Switch to root for package installation
+USER root
 
-RUN corepack enable
+# Install Python3 and pip
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-WORKDIR /app
+# Switch back to non-root user
+USER node
 
-# Install Python3 and pip using the same pattern as official Dockerfile
-ARG OPENCLAW_DOCKER_APT_PACKAGES="python3 python3-pip python3-venv"
-RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
-      apt-get update && \
-      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
-      apt-get clean && \
-      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
-    fi
+# Verify Python installation
+RUN python3 --version && pip3 --version
 
-# Copy only files needed for runtime (OpenClaw build not needed here)
-# Inherit from base: package.json, pnpm files would go here if needed
-
+# Set Python environment variables
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Security hardening: Run as non-root user (node user exists in node:22-bookworm)
-USER node
-
+# Default command inherits from base image
 CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
