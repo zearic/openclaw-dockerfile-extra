@@ -7,11 +7,14 @@ USER root
 # Install Python3 and pip
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
+    python3 \ 
+    python3-pip \ 
     python3-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+# Add alias to bashrc for the node user
+RUN echo "alias openclaw='node /app/dist/index.js'" >> /home/node/.bashrc
 
 # Switch back to non-root user
 USER node
