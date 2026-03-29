@@ -4,22 +4,14 @@ FROM ghcr.io/openclaw/openclaw:main
 # Switch to root for package installation
 USER root
 
-# Install Python3, pip, and poppler-utils (required by pdf2image)
+# Install Python3, pip, and venv
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
-    python3-venv \
-    poppler-utils && \
+    python3-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
-
-# Install Python dependencies for KTM skill
-RUN pip3 install --break-system-packages --no-cache-dir \
-    requests \
-    opencv-python-headless \
-    pdf2image \
-    pdfplumber
 
 # Add alias to bashrc for the node user
 RUN echo "alias openclaw='node /app/dist/index.js'" >> /home/node/.bashrc
