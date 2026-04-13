@@ -4,7 +4,7 @@ FROM ghcr.io/openclaw/openclaw:main
 # Switch to root for package installation
 USER root
 
-# Install Python3, pip, and venv
+# Install Python3, pip, and venv 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     python3 \
